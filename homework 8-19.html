@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <form id='login-form'>
+        <table>
+            <tr>
+                <td>Search by author:</td>
+                <td><input type="text" name="username" /></td>
+            </tr>
+            <tr>
+                <td>Find all quotes by author</td>
+                <td><input type="checkbox" id="allQuotes"></td>
+            </tr>
+            <tr>
+                <td>Get random quote</td>
+                <td><input type="submit"/></td>
+            </tr>
+        </table>
+    </form>
+    <p class="random-quote"></p>
+    <p class="author"></p>
+</body>
+</html>
+
+<script type="text/javascript">
+
+
+let randomizer = function(array) {
+    let total = array.results.length;
+    let randNumber = Math.floor(Math.random() * Math.floor(total))
+    return randNumber;
+}
+
+let returnAll = function(inputQuote, inputAuthor) {
+    const totalQuotes = data.results.length;
+    for (i = 0; i < totalQuotes; i++) {
+        inputQuote.insertAfter(document.createElement('p'));
+        // inputQuote.innerHTML = data.results[rand].content;
+        // inputAuthor.innerHTML = datad = randomizer(data);
+            // quote.innerHTML = data.results[rand].content;
+            // author.innerHTML = data.results[rand].author;
+    }
+}
+
+let addTags = function(quote, author) {
+    var newP = document.createElement("p");
+    var newP2 = document.createElement("p");
+    var newHR = document.createElement("hr");
+    newP.setAttribute("class", "deletable");
+    newP2.setAttribute("class", "deletable");
+    newHR.setAttribute("class", "deletable");
+    var newContent = document.createTextNode(quote);
+    var newContent2 = document.createTextNode(author);
+    newP.appendChild(newContent);
+    newP2.appendChild(newContent2);
+    var currentP = document.getElementById("random-quote");
+    document.body.insertBefore(newP, currentP);
+    document.body.insertBefore(newP2, currentP);
+    document.body.insertBefore(newHR, currentP);
+}
+
+let delFunc = function() {
+    let deleteTags = document.getElementsByClassName("deletable");
+    // console.log(deleteTags);
+    // deleteTags.forEach(function(tag) {
+    //     console.log("tag);
+        // tag.parentNode.removeChild(tag);
+    // });
+    while (deleteTags.length > 0 ) {
+        deleteTags.item(0).parentNode.removeChild(deleteTags.item(0));
+    }
+}
+
+const loginForm = document.getElementById('login-form');
+
+loginForm.addEventListener('submit', evt => {
+    evt.preventDefault();
+    const authorSearch = loginForm.querySelector('input[type="text"]').value;
+    const quote = document.getElementById('random-quote');
+    const author = document.getElementById('author');
+    const checkedForAll = document.getElementById("allQuotes").checked;
+    fetch(`https://api.quotable.io/quotes?author=${authorSearch}`)
+        .then(response => response.json())
+        .then(data => {
+            delFunc();
+            if (checkedForAll == true) {
+                for (i = 0; i < data.results.length; i++) {
+                    queryContent = data.results[i].content;
+                    queryAuthor = data.results[i].author;
+                    addTags(queryContent, queryAuthor);
+                }
+                return;
+            }
+            let rand = randomizer(data);
+            queryContent = data.results[rand].content;
+            queryAuthor = data.results[rand].author;
+            addTags(queryContent, queryAuthor);
+        })
+        .catch(error => { quote.innerHTML = "Please try a different search query."; } );
+    
+});
+</script>
